@@ -1,0 +1,552 @@
+================================================================================
+GET - Fetch Students List (Directory / Table View)
+================================================================================
+URL: /api/students/list
+Method: GET
+Base URL: App API (Next.js route handler — same origin)
+Usage: Fetch paginated student records for the Students directory page (`/students`).
+       Used by `fetchStudents()` in `src/services/school-api.ts` and
+       `useStudentsDirectory()` hook. Supports search, class, status, year filters,
+       and server-side pagination. The UI may request a large limit (e.g. 200) and
+       apply additional client-side sort (name | rollNumber | className | status | year)
+       and client-side pagination (page size: 8).
+
+Query Params:
+{
+  "page": 1,
+  "limit": 10,
+  "search": "Abdul",
+  "classId": "cls_5",
+  "status": "active | inactive | graduated",
+  "year": 2025
+}
+
+Query Param Notes:
+- page       (number, optional, default: 1) — Page number for server pagination
+- limit      (number, optional, default: 10) — Records per page
+- search     (string, optional) — Matches firstName, lastName, rollNumber, email
+- classId    (string, optional) — Filter by class ID (e.g. "cls_1", "cls_5")
+- status     (string, optional) — Filter: "active" | "inactive" | "graduated"
+- year       (number, optional) — Filter by enrollment / academic year
+
+Response:
+{
+  "data": [
+    {
+      "id": "stu_1",
+      "firstName": "Abdul",
+      "lastName": "Jabir Parwan",
+      "rollNumber": "001",
+      "email": "abdul-jabir-parwan-1@school.edu",
+      "phone": "+91 8412989048",
+      "classId": "cls_5",
+      "className": "Grade 12",
+      "year": 2025,
+      "status": "active",
+      "dateOfBirth": "2008-06-15",
+      "address": "Sangli, Maharashtra",
+      "guardian": {
+        "name": "Guardian of Abdul",
+        "phone": "+91 8412989048",
+        "email": "guardian@example.com",
+        "relation": "Parent"
+      },
+      "notes": "Enrolled via Anglo Urdu College, Sangli. Friday shift.",
+      "createdAt": "2024-08-15T00:00:00.000Z",
+      "updatedAt": "2025-06-01T00:00:00.000Z"
+    }
+  ],
+  "meta": {
+    "total": 16,
+    "page": 1,
+    "limit": 10,
+    "totalPages": 2
+  }
+}
+
+Error Response (500):
+{
+  "error": "Request failed"
+}
+
+
+================================================================================
+POST - Create New Student
+================================================================================
+URL: /api/students
+Method: POST
+Base URL: App API (Next.js route handler — same origin)
+Usage: Create a new student record from the Add Student page (`/students/new`).
+       Used by `createStudent()` in `src/services/school-api.ts` via
+       `StudentCreateForm` → `studentFormValuesToPayload()`.
+       On success, UI redirects to `/students/{id}`.
+
+Params: None
+
+Request:
+{
+  "firstName": "Abdul",
+  "lastName": "Jabir Parwan",
+  "rollNumber": "017",
+  "email": "abdul.jabir@school.edu",
+  "phone": "+91 9876543210",
+  "classId": "cls_5",
+  "year": 2025,
+  "status": "active",
+  "dateOfBirth": "2008-06-15",
+  "address": "Sangli, Maharashtra",
+  "guardian": {
+    "name": "Ahmed Parwan",
+    "phone": "+91 9876543211",
+    "email": "ahmed.parwan@example.com",
+    "relation": "Parent"
+  },
+  "notes": "New enrollment — Friday shift."
+}
+
+Response :
+{
+  "data": {
+    "id": "stu_abc123",
+    "firstName": "Abdul",
+    "lastName": "Jabir Parwan",
+    "rollNumber": "017",
+    "email": "abdul.jabir@school.edu",
+    "phone": "+91 9876543210",
+    "classId": "cls_5",
+    "className": "Grade 12",
+    "year": 2025,
+    "status": "active",
+    "dateOfBirth": "2008-06-15",
+    "address": "Sangli, Maharashtra",
+    "guardian": {
+      "name": "Ahmed Parwan",
+      "phone": "+91 9876543211",
+      "email": "ahmed.parwan@example.com",
+      "relation": "Parent"
+    },
+    "notes": "New enrollment — Friday shift.",
+    "createdAt": "2026-06-26T10:30:00.000Z",
+    "updatedAt": "2026-06-26T10:30:00.000Z"
+  }
+}
+
+Error Response (400):
+{
+  "error": "Failed to create student"
+}
+
+
+================================================================================
+GET - Fetch Student Profile Detail (All Tabs)
+================================================================================
+URL: /api/students/{id}?profile=true
+Method: GET
+Base URL: App API (Next.js route handler — same origin)
+Usage: Fetch full student profile for the Student Detail page (`/students/{id}`).
+       Powers all detail tabs: Overview, Academic, Attendance, Exams, Fees.
+       Used by `fetchStudentProfile(id)` in `src/services/school-api.ts`.
+
+Path Params:
+{
+  "id": "stu_1"
+}
+
+Query Params:
+{
+  "profile": true
+}
+
+Response:
+{
+  "data": {
+    "header": {
+      "id": "stu_1",
+      "displayName": "Abdul Jabir Parwan",
+      "initials": "AJ",
+      "firstName": "Abdul",
+      "lastName": "Jabir Parwan",
+      "rollNumber": "001",
+      "classId": "cls_5",
+      "className": "Grade 12",
+      "year": 2025,
+      "status": "active",
+      "profileBadge": "Student Profile"
+    },
+    "Overview": {
+        "tabName": "Overview",
+        "tabId": "overview",
+        "isEditable": true,
+        "personalInformation": {
+          "sectionTitle": "Personal Information",
+          "sectionDescription": "Core identity and contact details",
+          "firstName": "Abdul",
+          "lastName": "Jabir Parwan",
+          "rollNumber": "001",
+          "dateOfBirth": "2008-06-15",
+          "email": "abdul-jabir-parwan-1@school.edu",
+          "phone": "+91 8412989048",
+          "address": "Sangli, Maharashtra"
+        },
+        "guardian": {
+          "sectionTitle": "Guardian",
+          "sectionDescription": "Primary emergency contact",
+          "name": "Guardian of Abdul",
+          "relation": "Parent",
+          "phone": "+91 8412989048",
+          "email": "guardian@example.com"
+        },
+        "notes": {
+          "sectionTitle": "Notes",
+          "sectionDescription": "Administrative remarks",
+          "content": "Enrolled via Anglo Urdu College, Sangli. Friday shift.",
+          "enrolledAt": "2024-08-15T00:00:00.000Z",
+          "enrolledAtFormatted": "Aug 15, 2024",
+          "lastUpdatedAt": "2025-06-01T00:00:00.000Z",
+          "lastUpdatedAtFormatted": "Jun 1, 2025"
+        },
+        "quickContact": {
+          "sectionTitle": "Quick contact",
+          "phone": "+91 8412989048",
+          "email": "abdul-jabir-parwan-1@school.edu"
+        },
+        "residence": {
+          "sectionTitle": "Residence",
+          "address": "Sangli, Maharashtra"
+        },
+        "guardianContact": {
+          "sectionTitle": "Guardian contact",
+          "phone": "+91 8412989048"
+        }
+    },
+    "Academic": {
+        "tabName": "Academic",
+        "tabId": "academic",
+        "isEditable": true,
+        "summaryCards": {
+          "currentClass": {
+            "label": "Current class",
+            "classId": "cls_5",
+            "className": "Grade 12"
+          },
+          "academicYear": {
+            "label": "Academic year",
+            "year": 2025
+          },
+          "enrollmentStatus": {
+            "label": "Enrollment status",
+            "status": "active"
+          }
+        },
+        "academicRecord": {
+          "sectionTitle": "Academic record",
+          "sectionDescription": "Class placement and enrollment timeline",
+          "classSection": "Grade 12",
+          "classId": "cls_5",
+          "rollNumber": "001",
+          "cohortYear": 2025,
+          "status": "active",
+          "classDetailsLink": "/classes/cls_5",
+          "classDetailsLinkLabel": "View class details",
+          "enrolledAt": "2024-08-15T00:00:00.000Z",
+          "enrolledAtFormatted": "August 15, 2024"
+        }
+    },
+    "Attendance": {
+        "tabName": "Attendance",
+        "tabId": "attendance",
+        "isEditable": false,
+        "summaryCards": {
+          "attendanceRate": {
+            "label": "Attendance rate",
+            "value": 86,
+            "unit": "%"
+          },
+          "present": {
+            "label": "Present",
+            "value": 18
+          },
+          "absent": {
+            "label": "Absent",
+            "value": 2
+          },
+          "late": {
+            "label": "Late",
+            "value": 1
+          }
+        },
+        "attendanceSummary": {
+          "studentId": "stu_1",
+          "studentName": "Abdul Jabir Parwan",
+          "rollNumber": "001",
+          "present": 18,
+          "absent": 2,
+          "late": 1,
+          "total": 21
+        },
+        "attendanceHistory": {
+          "sectionTitle": "Attendance history",
+          "sectionDescription": "Recent recorded sessions",
+          "records": [
+            {
+              "id": "att_1",
+              "date": "2025-06-20",
+              "dateFormatted": "Jun 20, 2025",
+              "classId": "cls_5",
+              "className": "Grade 12",
+              "studentId": "stu_1",
+              "studentName": "Abdul Jabir Parwan",
+              "rollNumber": "001",
+              "status": "present",
+              "recordedAt": "2025-06-20T08:30:00.000Z",
+              "recordedAtFormatted": "Jun 20, 2025"
+            },
+            {
+              "id": "att_2",
+              "date": "2025-06-19",
+              "dateFormatted": "Jun 19, 2025",
+              "classId": "cls_5",
+              "className": "Grade 12",
+              "studentId": "stu_1",
+              "studentName": "Abdul Jabir Parwan",
+              "rollNumber": "001",
+              "status": "absent",
+              "recordedAt": "2025-06-19T08:30:00.000Z",
+              "recordedAtFormatted": "Jun 19, 2025"
+            },
+            {
+              "id": "att_3",
+              "date": "2025-06-18",
+              "dateFormatted": "Jun 18, 2025",
+              "classId": "cls_5",
+              "className": "Grade 12",
+              "studentId": "stu_1",
+              "studentName": "Abdul Jabir Parwan",
+              "rollNumber": "001",
+              "status": "late",
+              "recordedAt": "2025-06-18T08:45:00.000Z",
+              "recordedAtFormatted": "Jun 18, 2025"
+            }
+          ],
+          "emptyMessage": "No attendance records yet for this student."
+        }
+    },
+    "Exams": {
+        "tabName": "Exams",
+        "tabId": "exams",
+        "isEditable": false,
+        "summaryCards": {
+          "examsTaken": {
+            "label": "Exams taken",
+            "value": 1
+          },
+          "passed": {
+            "label": "Passed",
+            "value": 1
+          },
+          "averageScore": {
+            "label": "Average score",
+            "value": 82,
+            "unit": "%"
+          }
+        },
+        "examResults": {
+          "sectionTitle": "Exam results",
+          "sectionDescription": "Performance across assessments",
+          "results": [
+            {
+              "id": "result_1",
+              "examId": "exam_3",
+              "examTitle": "Exam #exam_3",
+              "studentId": "stu_1",
+              "studentName": "Abdul Jabir Parwan",
+              "rollNumber": "001",
+              "classId": "cls_5",
+              "total": 246,
+              "maxTotal": 300,
+              "percentage": 82,
+              "status": "pass",
+              "marksSummary": "246/300 marks · 82%",
+              "marks": [
+                {
+                  "subject": "Mathematics",
+                  "score": 82,
+                  "maxScore": 100,
+                  "display": "Mathematics: 82/100"
+                },
+                {
+                  "subject": "English",
+                  "score": 76,
+                  "maxScore": 100,
+                  "display": "English: 76/100"
+                },
+                {
+                  "subject": "Science",
+                  "score": 88,
+                  "maxScore": 100,
+                  "display": "Science: 88/100"
+                }
+              ]
+            }
+          ],
+          "emptyMessage": "No exam results recorded yet."
+        }
+    },
+    "Fees": {
+        "tabName": "Fees",
+        "tabId": "fees",
+        "isEditable": false,
+        "hasFeeRecords": true,
+        "summaryCards": {
+          "totalDue": {
+            "label": "Total due",
+            "value": 1000,
+            "currency": "USD",
+            "display": "$1,000"
+          },
+          "paid": {
+            "label": "Paid",
+            "value": 500,
+            "currency": "USD",
+            "display": "$500"
+          },
+          "balance": {
+            "label": "Balance",
+            "value": 500,
+            "currency": "USD",
+            "display": "$500"
+          },
+          "paymentStatus": {
+            "label": "Status",
+            "isOverdue": false,
+            "display": "On track"
+          }
+        },
+        "paymentSummary": {
+          "sectionTitle": "Payment summary",
+          "studentId": "stu_1",
+          "studentName": "Abdul Jabir Parwan",
+          "rollNumber": "001",
+          "className": "Grade 12",
+          "totalDue": 1000,
+          "totalPaid": 500,
+          "balance": 500,
+          "lastPaymentDate": "2025-05-15T00:00:00.000Z",
+          "lastPaymentDateFormatted": "May 15, 2025",
+          "isOverdue": false
+        },
+        "emptyMessage": "No fee records found for this student."
+    }
+  }
+}
+
+Error Response (404):
+{
+  "error": "Not found"
+}
+
+
+================================================================================
+PUT - Update Student Record
+================================================================================
+URL: /api/students/{id}
+Method: PUT
+Base URL: App API (Next.js route handler — same origin)
+Usage: Update an existing student from the Student Detail page (`/students/{id}`).
+       Triggered when admin clicks Save in edit mode on Overview or Academic tabs.
+       Used by `updateStudent(id, payload)` via `draftToUpdatePayload()` in
+       `src/lib/student-draft.ts`.
+
+Path Params:
+{
+  "id": "stu_1"
+}
+
+Query Params: None
+
+Request (all fields optional — partial update supported):
+{
+  "firstName": "Abdul",
+  "lastName": "Jabir Parwan",
+  "rollNumber": "001",
+  "email": "abdul.jabir@school.edu",
+  "phone": "+91 8412989048",
+  "classId": "cls_5",
+  "year": 2025,
+  "status": "active",
+  "dateOfBirth": "2008-06-15",
+  "address": "Sangli, Maharashtra",
+  "guardian": {
+    "name": "Ahmed Parwan",
+    "phone": "+91 9876543211",
+    "email": "ahmed.parwan@example.com",
+    "relation": "Parent"
+  },
+  "notes": "Updated administrative notes."
+}
+
+Response:
+{
+  "data": {
+    "id": "stu_1",
+    "firstName": "Abdul",
+    "lastName": "Jabir Parwan",
+    "rollNumber": "001",
+    "email": "abdul.jabir@school.edu",
+    "phone": "+91 8412989048",
+    "classId": "cls_5",
+    "className": "Grade 12",
+    "year": 2025,
+    "status": "active",
+    "dateOfBirth": "2008-06-15",
+    "address": "Sangli, Maharashtra",
+    "guardian": {
+      "name": "Ahmed Parwan",
+      "phone": "+91 9876543211",
+      "email": "ahmed.parwan@example.com",
+      "relation": "Parent"
+    },
+    "notes": "Updated administrative notes.",
+    "createdAt": "2024-08-15T00:00:00.000Z",
+    "updatedAt": "2026-06-26T11:00:00.000Z"
+  }
+}
+
+Error Response (404):
+{
+  "error": "Not found"
+}
+
+
+================================================================================
+DELETE - Delete Student Record
+================================================================================
+URL: /api/students/{id}
+Method: DELETE
+Base URL: App API (Next.js route handler — same origin)
+Usage: Permanently remove a student from the directory. Triggered from the Students
+       list page (`/students`) via the delete action in `StudentsDataTable` →
+       `StudentsDeleteDialog` → `deleteStudent(id)`.
+
+Path Params:
+{
+  "id": "stu_1"
+}
+
+Query Params: None
+
+Request: None
+
+Response:
+{
+  "data": {
+    "success": true
+  }
+}
+
+Error Response (404):
+{
+  "error": "Not found"
+}
+
+

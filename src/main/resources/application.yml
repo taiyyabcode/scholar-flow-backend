@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: scholar-flow-backend
+  profiles:
+    active: dev
+
+# JWT Configuration
+app:
+  jwt:
+    secret: bXlTdXBlclNlY3JldEtleUZvclNjaG9sYXJGbG93QXBwbGljYXRpb25Kd3Q=MustBeAtLeast256BitsLong
+    access-token-expiration: 86400000   # 24 hours
+    refresh-token-expiration: 604800000 # 7 days
+
+# Server
+server:
+  port: 8080
